@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+  esmassiva-api:
+    container_name: esmassiva-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    command: yarn start:dev
+    env_file:
+      - .env
+    depends_on:
+      - database-esmassiva
+    links:
+      - database-esmassiva:database-esmassiva
+
+  database-esmassiva:
+    container_name: database-esmassiva
+    image: mariadb:10.4
+    env_file:
+      - .env
+    volumes:
+      - database-data-esmassiva:/var/lib/postgresql/data/ # persist data even if container shuts down
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+    command:
+      - --default-time-zone=+00:00
+
+  redis-esmassiva:
+    container_name: redis-esmassiva
+    image: redis:5
+    command: redis-server --requirepass asd65gsd81g6d
+    ports:
+      - "6379:6379"
+
+volumes:
+  database-data-esmassiva: # named volume for easier docker-compose management
